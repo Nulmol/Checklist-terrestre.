@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checklist de Transporte Terrestre de Smolt - Salmones Blumar</title>
+
+  <!-- Configuración para PWA (Instalación en pantalla de inicio) -->
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Checklist Smolt">
+  
+  <!-- Icono de la aplicación -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230284c7'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>📋</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230284c7'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>📋</text></svg>">
+
+  <!-- Librería para generación de PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #0284c7;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --header-bg: #f1f5f9;
+      --text: #1e293b;
+      --border: #cbd5e1;
+      --border-light: #e2e8f0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 15px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      margin: 0 0 5px 0;
+      font-size: 1.3rem;
+    }
+
+    p.subtitle {
+      margin: 0;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .header-section {
+      background-color: var(--header-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .grid-header {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .form-group input {
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background-color: #ffffff;
+    }
+
+    .item-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    .item-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .options {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .options label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 6px 8px;
+      border-radius: 4px;
+      background-color: #f1f5f9;
+    }
+
+    .obs-input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 0.85rem;
+    }
+
+    .general-obs {
+      margin-top: 15px;
+      background-color: var(--card-bg);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-light);
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .general-obs textarea {
+      width: 100%;
+      height: 60px;
+      padding: 6px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn-submit {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-secondary {
+      background-color: #475569;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="area-checklist">
+  <header>
+    <h1>Lista de Chequeo: Transporte Terrestre de Smolt</h1>
+    <p class="subtitle">Salmones Blumar - Validación operativa previa al despacho.</p>
+  </header>
+
+  <form id="checklistForm">
+    <!-- Encabezado de Datos -->
+    <div class="header-section">
+      <div class="grid-header">
+        <div class="form-group">
+          <label>Fecha y Hora</label>
+          <input type="datetime-local" id="fechaHora">
+        </div>
+        <div class="form-group">
+          <label>Empresa de Transporte</label>
+          <input type="text" id="empresaTransporte" placeholder="Ej: Transportes del Sur S.A.">
+        </div>
+        <div class="form-group">
+          <label>Patente Camión / Agrupación</label>
+          <input type="text" id="patente" placeholder="Ej: AB-1234">
+        </div>
+        <div class="form-group">
+          <label>Nombre del Conductor</label>
+          <input type="text" placeholder="Nombre completo">
+        </div>
+        <div class="form-group">
+          <label>Piscicultura de Origen</label>
+          <input type="text" placeholder="Origen">
+        </div>
+        <div class="form-group">
+          <label>Centro de Destino / Buque</label>
+          <input type="text" placeholder="Destino">
+        </div>
+      </div>
+    </div>
+
+    <!-- PUNTOS DE VERIFICACIÓN -->
+    <div class="item-card">
+      <div class="item-title">1. Verificación de período de ayuno adecuado (48-72 hrs)</div>
+      <div class="options">
+        <label><input type="radio" name="p1" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p1" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p1" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">2. Verificación smoltificación (Smolt Vision)</div>
+      <div class="options">
+        <label><input type="radio" name="p2" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p2" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p2" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">3. Guías de despacho</div>
+      <div class="options">
+        <label><input type="radio" name="p3" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p3" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p3" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">4. Certificado sanitario de movimiento</div>
+      <div class="options">
+        <label><input type="radio" name="p4" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p4" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p4" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">5. Certificado de desinfección</div>
+      <div class="options">
+        <label><input type="radio" name="p5" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p5" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p5" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">6. Estanques limpios, desinfectados y sin residuos</div>
+      <div class="options">
+        <label><input type="radio" name="p6" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p6" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p6" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">7. Válvulas de descarga y estanques sin filtros</div>
+      <div class="options">
+        <label><input type="radio" name="p7" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p7" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p7" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">8. Difusores de O2 operativos y cilindros de reserva llenos</div>
+      <div class="options">
+        <label><input type="radio" name="p8" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p8" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p8" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">9. Sensores de O2 y Temperatura calibrados</div>
+      <div class="options">
+        <label><input type="radio" name="p9" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p9" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p9" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">10. Verificación de densidad de carga (máx 40-60 kg/m3)</div>
+      <div class="options">
+        <label><input type="radio" name="p10" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p10" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p10" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">11. Utilización de implementos de seguridad</div>
+      <div class="options">
+        <label><input type="radio" name="p11" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p11" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p11" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">12. Ajuste de Nivel de agua en lugar autorizado</div>
+      <div class="options">
+        <label><input type="radio" name="p12" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p12" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p12" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <div class="item-card">
+      <div class="item-title">13. Cerrado escotillas</div>
+      <div class="options">
+        <label><input type="radio" name="p13" value="Conforme"> Conforme</label>
+        <label><input type="radio" name="p13" value="No Conforme"> No Conforme</label>
+        <label><input type="radio" name="p13" value="N/A"> N/A</label>
+      </div>
+      <input type="text" class="obs-input" placeholder="Observaciones específicas (opcional)">
+    </div>
+
+    <!-- Observaciones Generales -->
+    <div class="general-obs">
+      <label style="font-weight: bold; display: block; margin-bottom: 6px;">Observaciones Generales:</label>
+      <textarea id="obsGenerales" placeholder="Registre comentarios adicionales..."></textarea>
+    </div>
+
+    <div data-html2canvas-ignore="true" class="button-group">
+      <button type="button" id="btnCompartir" class="btn-submit" onclick="generarPDFUniversal()">Descargar / Compartir PDF</button>
+      <button type="button" id="btnAbririOS" class="btn-secondary" onclick="abrirPDFNavegador()">Abrir PDF en Pantalla Completa (Ideal iOS)</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  window.onload = function() {
+    const campoFecha = document.getElementById('fechaHora');
+    if (campoFecha) {
+      const ahora = new Date();
+      ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+      campoFecha.value = ahora.toISOString().slice(0, 16);
+    }
+  };
+
+  function sincronizarEstadoDOM() {
+    document.querySelectorAll('input[type="text"], input[type="datetime-local"]').forEach(input => {
+      input.setAttribute('value', input.value);
+    });
+
+    document.querySelectorAll('textarea').forEach(textarea => {
+      textarea.textContent = textarea.value;
+    });
+
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+      if (radio.checked) {
+        radio.setAttribute('checked', 'checked');
+      } else {
+        radio.removeAttribute('checked');
+      }
+    });
+  }
+
+  function obtenerOpcionesPDF() {
+    const patente = document.getElementById('patente').value.trim() || 'SinPatente';
+    const nombreArchivo = `Checklist_Smolt_${patente}.pdf`;
+    return {
+      opciones: {
+        margin: [8, 8, 8, 8],
+        filename: nombreArchivo,
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      },
+      nombreArchivo,
+      patente
+    };
+  }
+
+  async function generarPDFUniversal() {
+    const boton = document.getElementById('btnCompartir');
+    boton.innerText = "Procesando PDF...";
+    boton.disabled = true;
+
+    sincronizarEstadoDOM();
+    const { opciones, nombreArchivo, patente } = obtenerOpcionesPDF();
+    const elemento = document.getElementById('area-checklist');
+
+    try {
+      const pdfWorker = html2pdf().set(opciones).from(elemento);
+      const pdfBlob = await pdfWorker.output('blob');
+      const archivoPDF = new File([pdfBlob], nombreArchivo, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [archivoPDF] })) {
+        await navigator.share({
+          files: [archivoPDF],
+          title: 'Checklist Smolt',
+          text: `Adjunto checklist de transporte terrestre (Patente: ${patente}).`
+        });
+      } else {
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = nombreArchivo;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error("Error al procesar el PDF, abriendo respaldo:", error);
+        abrirPDFNavegador();
+      }
+    } finally {
+      boton.innerText = "Descargar / Compartir PDF";
+      boton.disabled = false;
+    }
+  }
+
+  async function abrirPDFNavegador() {
+    sincronizarEstadoDOM();
+    const { opciones } = obtenerOpcionesPDF();
+    const elemento = document.getElementById('area-checklist');
+
+    try {
+      const pdfWorker = html2pdf().set(opciones).from(elemento);
+      const pdfBlob = await pdfWorker.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+    } catch (e) {
+      console.error("Error al abrir PDF:", e);
+    }
+  }
+</script>
+
+</body>
+</html>
